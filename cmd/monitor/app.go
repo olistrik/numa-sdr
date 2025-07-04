@@ -1,4 +1,4 @@
-package main
+package monitor
 
 import (
 	"fmt"
@@ -33,7 +33,7 @@ func main() {
 	// Init defaults.
 	source.SetFreqency(args.Frequency)
 	source.SetSampleRate(args.SampleRate)
-	source.SetSweepSteps(args.SweepSteps)
+	source.SetHops(args.SweepSteps)
 
 	close, err := source.Stream()
 	if err != nil {
@@ -55,6 +55,7 @@ func main() {
 			case <-quit:
 				return
 			default:
+				source.Signal.Fft()
 			}
 		}
 	}

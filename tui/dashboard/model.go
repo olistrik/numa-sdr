@@ -14,7 +14,7 @@ import (
 )
 
 func tick() tea.Cmd {
-	return tea.Tick(100*time.Millisecond, func(t time.Time) tea.Msg {
+	return tea.Tick(1000*time.Millisecond, func(t time.Time) tea.Msg {
 		return t
 	})
 }
@@ -36,7 +36,7 @@ func New(source sdr.Sdr) Dashboard {
 	chart.SetZoneManager(zoneManager)
 	chart.Focus()
 
-	average := make([]float64, source.SweepSamples())
+	average := make([]float64, source.TotalSamples())
 	history := make([][]float64, 10)
 	for i := range history {
 		zeros := make([]float64, len(average))
@@ -57,8 +57,8 @@ func (m Dashboard) Init() tea.Cmd {
 func (m Dashboard) Scan() tea.Cmd {
 	m.chart.ClearAllData()
 
-	dbs := m.signal.Decabels()
-	bdw := m.signal.SweepWidth()
+	dbs := m.signal.Signal.Fft().Decabels()
+	bdw := m.signal.TotalBandwidth()
 	step := bdw / unit.Frequency(len(dbs))
 	frq := m.signal.Freqency()
 	x := frq - bdw/2
@@ -86,8 +86,8 @@ func (m Dashboard) Scan() tea.Cmd {
 	}
 
 	m.chart.SetXRange(frq-bdw, frq+bdw)
-	m.chart.SetYRange(0, 100)
-	m.chart.SetViewXYRange(frq-bdw/2, frq+bdw/2, 0, 99)
+	m.chart.SetYRange(-100, 100)
+	m.chart.SetViewXYRange(frq-bdw/2, frq+bdw/2, -99, 99)
 	m.chart.DrawBrailleAll()
 
 	return tick()
