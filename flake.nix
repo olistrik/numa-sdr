@@ -17,13 +17,13 @@
             git
 
             go
-            soapysdr
+            # soapysdr
           ];
-          env = {
-            SOAPY_SDR_PLUGIN_PATH = "${
-            pkgs.lib.makeSearchPath pkgs.soapysdr.passthru.searchPath [ pkgs.soapyrtlsdr ]
-          }";
-          };
+          # env = {
+          #   SOAPY_SDR_PLUGIN_PATH = "${
+          #   pkgs.lib.makeSearchPath pkgs.soapysdr.passthru.searchPath [ pkgs.soapyrtlsdr ]
+          # }";
+          # };
         };
       };
     };
