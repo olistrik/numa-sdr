@@ -50,9 +50,11 @@ actually display.
 
 ### Building
 
-Numa is written in Golang. So you sould first install and configure go. [The
-official install instructions can be found here.](https://go.dev/doc/install)
-If using ubuntu do not use `apt`.
+Numa is precompiled for Windows, OSX, and Linux for both the x86_64 and AArch64 architectures. [The latest releases can be found here](https://github.com/olistrik/numa-sdr/releases).
+
+If you would still like to compile Numa from source, you sould first install and configure GoLang. 
+[The official install instructions can be found here.](https://go.dev/doc/install).
+If using Ubuntu, follow the official install instructions and resist the temptation to use `apt`. 
 
 > [!NOTE]
 > `numa_web` does not _yet_ depend on the `rtl_sdr` or `soapy` libraries, but 
@@ -82,5 +84,6 @@ These are some ideas that we would like to implement in the future.
       waterfall plots.
 - [ ] Implement `numa_power` using soapy to support more SDRs.
     - [ ] Allow for custom processing pipelines _before_ integration (maybe via GNURadio?).
+- [ ] Dockerize it (is this even useful?).
 
 
