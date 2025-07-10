@@ -1,0 +1,50 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  tagged-release:
+    name: Tagged Release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.24'
+
+    - name: Build
+      run: |
+        # linux x86-64
+        GOOS=linux GOARCH=amd64 go build -v -o linux-amd64/numa_web ./cmd/web
+        GOOS=linux GOARCH=arm64 go build -v -o linux-arm64/numa_web ./cmd/web
+        tar -czvf numa-sdr-linux-amd64.zip linux-amd64/* LICENSE README.md
+        tar -czvf numa-sdr-linux-arm64.zip linux-arm64/* LICENSE README.md
+        # OSX 
+        GOOS=darwin GOARCH=amd64 go build -v -o darwin-amd64/numa_web ./cmd/web
+        GOOS=darwin GOARCH=arm64 go build -v -o darwin-arm64/numa_web ./cmd/web
+        tar -czvf numa-sdr-darwin-amd64.zip darwin-amd64/* LICENSE README.md
+        tar -czvf numa-sdr-darwin-arm64.zip darwin-arm64/* LICENSE README.md
+        # Windows
+        GOOS=windows GOARCH=amd64 go build -v -o windows-amd64/numa_web.exe ./cmd/web
+        GOOS=windows GOARCH=arm64 go build -v -o windows-arm64/numa_web.exe ./cmd/web
+        zip -v numa-sdr-windows-amd64.zip windows-amd64/* LICENSE README.md
+        zip -v numa-sdr-windows-arm64.zip windows-arm64/* LICENSE README.md
+          
+#    - name: Test
+#      run: go test -v ./...
+
+    - uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        prerelease: false
+        files: |
+          *.tar.gz
+          *.zip
