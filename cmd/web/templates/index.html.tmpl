@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>    
+	<title>{{.title}}</title>
+	<link rel="icon" href="/favicon.ico">
+	<script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
+	<script type="module">
+		const waterfall = document.getElementById('waterfall');
+		const data = {
+			x: [],
+			y: [],
+			z: [],
+
+		};
+		const layout = {
+			paper_bgcolor: '#282828',
+			plot_bgcolor: '#282828',
+			automargin: true,
+			font: {
+				color: '#f3f3f3'
+			},
+			title: {
+				text: "{{.title}}",
+			},
+			xaxis: {
+				title: {
+					text: 'Frequency (Hz)',
+				},
+				tickcolor: '#f3f3f3',
+				// scaleanchor: 'y',
+			},
+			yaxis: {
+				tickcolor: '#f3f3f3',
+				type: 'category',
+			}
+		}
+
+		Plotly.newPlot(waterfall, [{
+			...data,
+			type: 'heatmap',
+		}], layout, {
+			responsive: true,
+		});
+
+		const setLayout = (scan) => {
+				const cols = scan.bins.length;
+				const width = waterfall.offsetWidth;
+				const height = waterfall.offsetHeight;
+				const pixelSize = width / cols;
+				const maxRows = Math.floor(height / pixelSize);
+
+				layout.yaxis.range = [maxRows, 0];
+				layout.yaxis.autorange = false;
+
+				const start = parseFloat(scan.start_frequency);
+				const end = parseFloat(scan.end_frequency);
+				const step = (end - start) / cols;
+
+				for (let i = 0; i < cols; i++) {
+					data.x.push(start + step * i);
+				}
+
+				layout.xaxis.range = [start, end];
+				layout.xaxis.autorange = false;
+		}
+
+		const rerender = () => {
+				Plotly.react(waterfall, [{
+					...data,
+					y : [...data.y],
+					z : [...data.z],
+					type: 'heatmap',
+				}], layout)
+		} 
+
+		const pushRow = (scan) => {
+			data.y.unshift(scan.date_time);
+			data.z.unshift(scan.bins);
+
+			while (data.z.length > layout.yaxis.range[0] && data.z.length > 0)  {
+				data.y.pop();
+				data.z.pop();
+			}
+		} 
+
+		const evtSource = new EventSource("/stream/scans");
+		evtSource.addEventListener('init', (evt) => {
+				const scans = JSON.parse(evt.data);
+				data.x = [];
+				data.y = [];
+				data.z = [];
+
+				if (scans.length === 0) {
+					return 
+				}
+
+				setLayout(scans[0]);
+
+				for (const scan of scans) {
+					pushRow(scan);
+				}
+
+				rerender();
+
+		});
+
+		evtSource.addEventListener('scan', (evt) => {
+			const scan = JSON.parse(evt.data);
+			if (data.z.length === 0) {
+				setLayout(scan);
+			}
+
+			pushRow(scan);
+
+			rerender();
+		});
+	</script>
+	<style>
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			background-color: #121212;
+			width: 100vw;
+			height: 100vh;
+		}
+
+		#waterfall {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+<body>
+	<div id="waterfall"></div>
+</body>
+</html>
