@@ -41,7 +41,7 @@ rtl_power -f ... -e 1h | numa_web | gzip > log.csv.gz
 --help              -h          Display the help text.
 ```
 
-Notibly, the history flag can be used to control the size of the in-memory
+Notably, the history flag can be used to control the size of the in-memory
 cache maintained by numa for new connections. This is not the same as storage
 and should not be set too high. Depending on the datarate of your scan this can
 rapidly consume large amounts of memory. Additionally, new connections to the
